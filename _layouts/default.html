@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="{{ site.lang | default: 'it' }}">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ page.title }} · {{ site.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  </head>
+  <body>
+    {% include header.html %}
+    <main class="container">
+      {{ content }}
+    </main>
+  </body>
+</html>

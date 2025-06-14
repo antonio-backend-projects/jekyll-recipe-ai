@@ -1,0 +1,280 @@
+{
+  "name": "jekyll-autopost",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1640,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "5efad78c-f4ea-490e-83c9-9c8c34eaeb21"
+    },
+    {
+      "parameters": {
+        "filePath": "/home/ubuntu/n8n/jekyll/recipes.csv"
+      },
+      "name": "Read CSV",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "position": [
+        -1440,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "884e4291-6483-4865-a1c4-35e0d466cfab"
+    },
+    {
+      "parameters": {
+        "operation": "read"
+      },
+      "name": "Spreadsheet File",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "position": [
+        -1200,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "14822341-6bca-480d-b569-5fbcd17d2813"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -940,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "bfddf1ce-7d31-4cca-b249-be0ffbc2978c"
+    },
+    {
+      "parameters": {
+        "operation": "chat",
+        "requestOptions": {}
+      },
+      "name": "Generate Post",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        -700,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "83e57960-09d6-483d-9fe1-0ac263c3eb73",
+      "credentials": {
+        "openAiApi": {
+          "id": "4e4Nzus45cL71Qsf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const slug = $json.titolo.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');\nconst frontMatter = `---\\ntitle: \\\"${$json.titolo}\\\"\\ndate: ${$json.data_pubblicazione} +0200\\nlayout: post\\n---`;\nconst aiContent = $node[\"Generate Post\"].json.choices[0].message.content.trim();\nconst markdown = `${frontMatter}\\n\\n${aiContent}`;\nreturn [{\n  json: {\n    ...$json,\n    slug,\n    markdownPath: `_posts/${$json.data_pubblicazione.slice(0,10)}-${slug}.md`,\n    markdownBase64: Buffer.from(markdown,'utf8').toString('base64')\n  }\n}];"
+      },
+      "name": "Build Markdown",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        -440,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "78f42ef5-2e29-4921-9ccb-984496aab4f5"
+    },
+    {
+      "parameters": {
+        "unit": "dateTime"
+      },
+      "name": "Wait Until Publish",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -200,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "53a35d7c-b210-4b27-82e4-61fe7eba9bf4",
+      "webhookId": "30845b53-aed7-4988-893f-87c7b105d284"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "antonio-backend-projects",
+          "mode": ""
+        },
+        "repository": {
+          "__rl": true,
+          "value": "jekyll-recipe-ai",
+          "mode": "list",
+          "cachedResultName": "jekyll-recipe-ai",
+          "cachedResultUrl": "https://github.com/antonio-backend-projects/jekyll-recipe-ai"
+        },
+        "filePath": "={{ $json[\"markdownPath\"] }}",
+        "fileContent": "={{ $json[\"markdownBase64\"] }}",
+        "commitMessage": "=={{ 'Add recipe: ' + $json.titolo }}"
+      },
+      "name": "Commit Markdown",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        60,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "d885e9ab-0f9c-46c2-af27-914628718365",
+      "webhookId": "eb971001-46af-4c10-abcb-e7629114afe5",
+      "credentials": {
+        "githubApi": {
+          "id": "kNB4qc6xYAhI11tb",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "createTweet"
+      },
+      "name": "Post on X",
+      "type": "n8n-nodes-base.twitter",
+      "position": [
+        320,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "78d9ca4f-392d-47f6-98c1-b5b2a671c736",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "text": "={{$json.titolo}}",
+        "additionalFields": {}
+      },
+      "name": "Post on LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [
+        560,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "319bd723-ff2c-40ca-9519-b38107323b49",
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Read CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CSV": {
+      "main": [
+        [
+          {
+            "node": "Spreadsheet File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spreadsheet File": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Generate Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Post": {
+      "main": [
+        [
+          {
+            "node": "Build Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Markdown": {
+      "main": [
+        [
+          {
+            "node": "Wait Until Publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Until Publish": {
+      "main": [
+        [
+          {
+            "node": "Commit Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Markdown": {
+      "main": [
+        [
+          {
+            "node": "Post on X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post on X": {
+      "main": [
+        [
+          {
+            "node": "Post on LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "13e516a5-44fa-415c-b43e-b8842f68431c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1f74342ff568910c758d020acefb80f2657dc713cb52c621dc9a1d12c88452f1"
+  },
+  "id": "G2rpmq6qJiMyA708",
+  "tags": []
+}
