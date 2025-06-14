@@ -1,6 +1,7 @@
-![n8n → Jekyll workflow](images/n8n-workflow.png)
 
 # jekyll-recipe-ai
+
+![n8n → Jekyll workflow](images/n8n-workflow.png)
 
 Ricettario statico basato su **Jekyll** alimentato da un workflow **n8n** che genera, programma e pubblica articoli tramite **OpenAI** a partire da un semplice file CSV.
 
