@@ -87,6 +87,25 @@ bundle exec jekyll serve
 
 ---
 
+
+run
+
+
+```bash
+docker stop n8n && docker rm n8n   # ferma e rimuove il vecchio container
+
+docker run -d --name n8n \
+  --restart unless-stopped \
+  -p 5678:5678 \
+  -v n8n_data:/home/node/.n8n \
+  -v /home/ubuntu/n8n/jekyll:/data \
+  -e N8N_SECURE_COOKIE=false \
+  -e WEBHOOK_TUNNEL_URL=http://51.75.133.84:5678 \
+  -e N8N_FILESYSTEM_ALLOW_LIST="/data" \
+  -e NODE_FUNCTION_ALLOW_BUILTIN=fs \
+  docker.n8n.io/n8nio/n8n
+```
+
 ## 🤝 Contributi
 
 1. Fai fork e crea un branch descrittivo (`feature/nuova-ricetta`).

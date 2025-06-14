@@ -6,8 +6,8 @@
       "name": "Start",
       "type": "n8n-nodes-base.manualTrigger",
       "position": [
-        -1640,
-        160
+        -1740,
+        420
       ],
       "typeVersion": 1,
       "id": "5efad78c-f4ea-490e-83c9-9c8c34eaeb21"
@@ -113,8 +113,8 @@
       "name": "Post on LinkedIn",
       "type": "n8n-nodes-base.linkedIn",
       "position": [
-        380,
-        360
+        340,
+        200
       ],
       "typeVersion": 1,
       "id": "319bd723-ff2c-40ca-9519-b38107323b49",
@@ -202,6 +202,38 @@
       ],
       "id": "27288133-400d-4957-b7d2-b1ee2260c12a",
       "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst CSV_PATH = '/data/recipes.csv';\n\n// 1. Leggi il CSV attuale\nconst rawCsv = fs.readFileSync(CSV_PATH, 'utf8').trim();\nconst rows   = rawCsv.split('\\n');\n\n// 2. Filtra via la riga pubblicata\nconst filtered = rows.filter((row, idx) => {\n\tif (idx === 0) return true;            // header\n\treturn row.split(';')[0] !== $json.titolo;\n});\n\n// 3. Se è cambiato, riscrivi il file\nif (filtered.length !== rows.length) {\n\tconst newCsv = filtered.join('\\n') + '\\n';\n\tfs.writeFileSync(CSV_PATH, newCsv, 'utf8');\n}\n\n// 4. Restituisci l’item JSON senza binari inutili\n// 4. Restituisci l’item originale (senza binari aggiuntivi)\nreturn [\n\t{\n\t\tjson: $json\n\t}\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -840,
+        500
+      ],
+      "id": "a7816b95-b5a0-44b6-af54-a90177524f7e",
+      "name": "Remove the processed csv line"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1660,
+        -180
+      ],
+      "id": "39814681-6340-4b30-a4b9-14bc8298243f",
+      "name": "Schedule Trigger"
     }
   ],
   "pinData": {},
@@ -224,6 +256,11 @@
             "node": "Extract from File",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Remove the processed csv line",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -233,6 +270,11 @@
         [
           {
             "node": "Copywriter AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Remove the processed csv line",
             "type": "main",
             "index": 0
           }
@@ -315,13 +357,29 @@
           }
         ]
       ]
+    },
+    "Remove the processed csv line": {
+      "main": [
+        []
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "62cef2cb-d634-4509-90d8-3abb6e6df166",
+  "versionId": "9ce77bdb-3568-43ea-8e92-c5a282b870e4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "1f74342ff568910c758d020acefb80f2657dc713cb52c621dc9a1d12c88452f1"
