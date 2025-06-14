@@ -3,10 +3,12 @@ layout: default
 ---
 
 <article class="post-content">
-  <h1>{{ page.title }}</h1>
-  <p><time datetime="{{ page.date | date_to_xmlschema }}">
-     {{ page.date | date: '%d %B %Y' }}
-  </time></p>
+  <header class="hero">
+    <h1>{{ page.title }}</h1>
+    <time datetime="{{ page.date | date_to_xmlschema }}">
+      {{ page.date | date: '%d %B %Y' }}
+    </time>
+  </header>
 
   {{ content }}
 
