@@ -1,4 +1,3 @@
-````markdown
 ![n8n → Jekyll workflow](images/n8n-workflow.png)
 
 # jekyll-recipe-ai  
@@ -58,7 +57,7 @@ cd jekyll-recipe-ai
 # 2. (facoltativo) Servi il sito in locale
 bundle install          # richiede Ruby + Bundler
 bundle exec jekyll serve
-````
+```
 
 ### Impostare n8n
 
