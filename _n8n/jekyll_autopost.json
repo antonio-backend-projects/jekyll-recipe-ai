@@ -14,29 +14,17 @@
     },
     {
       "parameters": {
-        "filePath": "/home/ubuntu/n8n/jekyll/recipes.csv"
+        "filePath": "/data/recipes.csv",
+        "dataPropertyName": "=data"
       },
       "name": "Read CSV",
       "type": "n8n-nodes-base.readBinaryFile",
       "position": [
-        -1440,
-        160
+        -1480,
+        460
       ],
       "typeVersion": 1,
       "id": "884e4291-6483-4865-a1c4-35e0d466cfab"
-    },
-    {
-      "parameters": {
-        "operation": "read"
-      },
-      "name": "Spreadsheet File",
-      "type": "n8n-nodes-base.spreadsheetFile",
-      "position": [
-        -1200,
-        160
-      ],
-      "typeVersion": 1,
-      "id": "14822341-6bca-480d-b569-5fbcd17d2813"
     },
     {
       "parameters": {
@@ -46,58 +34,27 @@
       "name": "Split In Batches",
       "type": "n8n-nodes-base.splitInBatches",
       "position": [
-        -940,
-        160
+        -1080,
+        440
       ],
       "typeVersion": 1,
       "id": "bfddf1ce-7d31-4cca-b249-be0ffbc2978c"
     },
     {
       "parameters": {
-        "operation": "chat",
-        "requestOptions": {}
-      },
-      "name": "Generate Post",
-      "type": "n8n-nodes-base.openAi",
-      "position": [
-        -700,
-        160
-      ],
-      "typeVersion": 1,
-      "id": "83e57960-09d6-483d-9fe1-0ac263c3eb73",
-      "credentials": {
-        "openAiApi": {
-          "id": "4e4Nzus45cL71Qsf",
-          "name": "OpenAi account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "functionCode": "const slug = $json.titolo.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');\nconst frontMatter = `---\\ntitle: \\\"${$json.titolo}\\\"\\ndate: ${$json.data_pubblicazione} +0200\\nlayout: post\\n---`;\nconst aiContent = $node[\"Generate Post\"].json.choices[0].message.content.trim();\nconst markdown = `${frontMatter}\\n\\n${aiContent}`;\nreturn [{\n  json: {\n    ...$json,\n    slug,\n    markdownPath: `_posts/${$json.data_pubblicazione.slice(0,10)}-${slug}.md`,\n    markdownBase64: Buffer.from(markdown,'utf8').toString('base64')\n  }\n}];"
-      },
-      "name": "Build Markdown",
-      "type": "n8n-nodes-base.function",
-      "position": [
-        -440,
-        160
-      ],
-      "typeVersion": 1,
-      "id": "78f42ef5-2e29-4921-9ccb-984496aab4f5"
-    },
-    {
-      "parameters": {
-        "unit": "dateTime"
+        "amount": "={{ $json.data_pubblicazione }}",
+        "unit": "="
       },
       "name": "Wait Until Publish",
       "type": "n8n-nodes-base.wait",
       "position": [
-        -200,
-        160
+        -220,
+        -180
       ],
       "typeVersion": 1,
       "id": "53a35d7c-b210-4b27-82e4-61fe7eba9bf4",
-      "webhookId": "30845b53-aed7-4988-893f-87c7b105d284"
+      "webhookId": "30845b53-aed7-4988-893f-87c7b105d284",
+      "disabled": true
     },
     {
       "parameters": {
@@ -115,14 +72,14 @@
           "cachedResultUrl": "https://github.com/antonio-backend-projects/jekyll-recipe-ai"
         },
         "filePath": "={{ $json[\"markdownPath\"] }}",
-        "fileContent": "={{ $json[\"markdownBase64\"] }}",
+        "fileContent": "={{ $('Code').item.json.markdownContent }}",
         "commitMessage": "=={{ 'Add recipe: ' + $json.titolo }}"
       },
       "name": "Commit Markdown",
       "type": "n8n-nodes-base.github",
       "position": [
-        60,
-        160
+        -100,
+        360
       ],
       "typeVersion": 1,
       "id": "d885e9ab-0f9c-46c2-af27-914628718365",
@@ -141,8 +98,8 @@
       "name": "Post on X",
       "type": "n8n-nodes-base.twitter",
       "position": [
-        320,
-        160
+        160,
+        -220
       ],
       "typeVersion": 1,
       "id": "78d9ca4f-392d-47f6-98c1-b5b2a671c736",
@@ -156,12 +113,95 @@
       "name": "Post on LinkedIn",
       "type": "n8n-nodes-base.linkedIn",
       "position": [
-        560,
-        160
+        380,
+        360
       ],
       "typeVersion": 1,
       "id": "319bd723-ff2c-40ca-9519-b38107323b49",
       "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "delimiter": ";"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1260,
+        -40
+      ],
+      "id": "7e6d5cac-befd-4cb6-8564-b4268e9dd04e",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "content": "## Write SEO Optimized Blog Post\n\n\n",
+        "height": 440,
+        "width": 420,
+        "color": 3
+      },
+      "id": "f72b0e71-92bb-4eb5-ad18-5c5abecd3699",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -980,
+        -100
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Sei un food writer SEO-first per un blog Jekyll di ricette italiane. \nScrivi un articolo di 800-1000 parole, tono professionale ma caldo e accessibile. \nNON includere alcun front-matter.\n\n### INPUT DEL POST\n- Titolo ricetta: {{ $json.titolo }}\n- Descrizione / brief: {{ $json.prompt_descrizione }}\n- Keyword principale: {{ $json.keyword_principale }}\n- Keyword secondarie (da integrare naturalmente): {{ $json.keyword_secondarie }}\n\n### LINEE GUIDA\n1. Usa un H2 con il titolo esatto all’inizio dell’articolo.  \n2. Inserisci la **keyword principale** nel titolo, nel primo paragrafo e in almeno un H3.  \n3. Struttura l’articolo in Markdown con questi blocchi **nell’ordine**:\n   - Introduzione (breve storia o curiosità sulla ricetta)\n   - Sezione *Ingredienti* (lista puntata)\n   - Sezione *Procedimento* (passaggi numerati)\n   - Consigli dello chef / trucchi per un risultato perfetto\n   - Abbinamento vini o bevande\n   - Varianti o sostituzioni possibili\n   - FAQ (almeno 3 domande/risposte rapide)\n   - Conclusione con **CTA**: invita a provare la ricetta e a visitare altre ricette sul blog\n4. Evidenzia parole chiave usando **bold** o *corsivo* dove appropriato (senza abusarne).  \n5. Mantieni frasi e paragrafi corti, usa bullet point e heading H3 per la leggibilità.  \n6. Evita emoji e frasi troppo promozionali; tono amichevole ma autorevole.  \n7. L’output deve essere **solo il contenuto Markdown** dell’articolo, senza spiegazioni aggiuntive.\n\n### OBIETTIVO SEO\n- Ottimizza per la keyword principale senza forzature; distribuisci le secondarie in modo naturale.\n- Usa sinonimi in italiano quando opportuno (es. “funghi porcini freschi”, “riso Carnaroli”, ecc.).\n",
+        "options": {}
+      },
+      "id": "49cfd514-17d0-467b-b658-7a1cc64fffc2",
+      "name": "Copywriter AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -900,
+        0
+      ],
+      "typeVersion": 1.8
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "16b047d2-0d4d-4fa7-a4f9-9b65025d51f0",
+      "name": "gpt-4o-mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -900,
+        200
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "4e4Nzus45cL71Qsf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Item proveniente da \"Split In Batches\" (indice 0)\nconst base = $items(\"Split In Batches\")[0].json;\n\n// 1. Slug SEO-friendly\nconst slug = base.titolo\n  .toLowerCase()\n  .replace(/[^a-z0-9]+/g, '-')\n  .replace(/(^-|-$)/g, '');\n\n// 2. Front-matter Jekyll\nconst frontMatter = `---\\ntitle: \"${base.titolo}\"\\ndate: ${base.data_pubblicazione} +0200\\nlayout: post\\n---`;\n\n// 3. Contenuto AI\nconst aiContent = $json.output.trim();\n\n// 4. Markdown completo\nconst markdown = `${frontMatter}\\n\\n${aiContent}`;\n\nreturn [\n  {\n    json: {\n      ...base,                // mantiene titolo, keyword…\n      slug,\n      markdownPath: `_posts/${base.data_pubblicazione.slice(0,10)}-${slug}.md`,\n      markdownContent: markdown\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        20
+      ],
+      "id": "27288133-400d-4957-b7d2-b1ee2260c12a",
+      "name": "Code"
     }
   ],
   "pinData": {},
@@ -181,18 +221,7 @@
       "main": [
         [
           {
-            "node": "Spreadsheet File",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Spreadsheet File": {
-      "main": [
-        [
-          {
-            "node": "Split In Batches",
+            "node": "Extract from File",
             "type": "main",
             "index": 0
           }
@@ -203,29 +232,7 @@
       "main": [
         [
           {
-            "node": "Generate Post",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Generate Post": {
-      "main": [
-        [
-          {
-            "node": "Build Markdown",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build Markdown": {
-      "main": [
-        [
-          {
-            "node": "Wait Until Publish",
+            "node": "Copywriter AI Agent",
             "type": "main",
             "index": 0
           }
@@ -264,13 +271,57 @@
           }
         ]
       ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-4o-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Copywriter AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copywriter AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Wait Until Publish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "13e516a5-44fa-415c-b43e-b8842f68431c",
+  "versionId": "62cef2cb-d634-4509-90d8-3abb6e6df166",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "1f74342ff568910c758d020acefb80f2657dc713cb52c621dc9a1d12c88452f1"
