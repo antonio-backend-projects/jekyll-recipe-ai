@@ -117,6 +117,19 @@ docker run -d --name n8n \
 
 ---
 
+### 🚀 Prossime implementazioni
+
+* 🖼️ **Generazione immagine del post via AI**
+  Creare una cover 1024×1024 con prompt derivato dal titolo e committarla in `assets/img/`.
+
+* 🤝 **Pubblicazione automatica sui social**
+
+  * 🐦 Post su **X** con titolo + link alla ricetta
+  * 🔗 Condivisione su **LinkedIn** (immagine opzionale, titolo + excerpt)
+
+
+---
+
 ## 🤝 Contributi
 
 1. Fai **fork** e crea un branch descrittivo (`feature/nuova-ricetta`).
