@@ -4,16 +4,18 @@ title: Tutte le ricette
 ---
 
 <div class="container">
-  <h1>Ricette di cucina generate con AI</h1>
+  <!-- Titolo pagina -->
+  <h1 class="page-title">Ricette di cucina generate con AI</h1>
 
-  <div class="posts-grid">
+  <!-- Lista post con jumbotron -->
+  <div class="post-list">
     {% for post in site.posts %}
-      <article class="post-card">
-        <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+      <article class="hero hero-teaser">
+        <h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
         <time datetime="{{ post.date | date_to_xmlschema }}">
           {{ post.date | date: '%d %b %Y' }}
         </time>
-        <p>{{ post.excerpt | strip_html | truncate: 100 }}</p>
+        <p>{{ post.excerpt | strip_html | truncate: 140 }}</p>
       </article>
     {% endfor %}
   </div>
