@@ -95,7 +95,7 @@ h2 { border-bottom: 2px solid var(--accent); padding-bottom: .3em; }
   border: 1px solid #ffe8a8;
   border-radius: var(--radius);
   padding: 2rem 1.5rem;
-  margin: 0 0 2rem;                /* spaziatura sotto */
+  margin: 2rem 0; 
   text-align: center;
 }
 .hero h1 {
@@ -109,4 +109,17 @@ h2 { border-bottom: 2px solid var(--accent); padding-bottom: .3em; }
   font-size: 1rem;
   color: var(--muted);
   letter-spacing: .5px;
+}
+
+
+/* NAV LINKS (mini-hero) ------------------------------------- */
+.nav a {
+  padding: .35rem .75rem;
+  border-radius: var(--radius);
+  transition: background .15s, color .15s;
+}
+.nav a:not(.logo):hover {
+  background: #fff6d6;          /* stesso giallo del jumbotron */
+  border: 1px solid #ffe8a8;
+  color: var(--accent-dark);
 }
