@@ -16,7 +16,7 @@ Ricettario statico basato su **Jekyll** alimentato da un workflow **n8n** che ge
 | `index.html`          | Homepage che elenca tutti i post                                    |
 | `_posts/`             | Cartella in cui il workflow n8n committa i markdown delle ricette   |
 | `images/n8n-workflow.png` | Diagramma del flusso (visualizzato qui sopra)                   |
-| `n8n_/`               | JSON del workflow n8n per import rapido                           |
+| `_n8n/`               | JSON del workflow n8n per import rapido                           |
 
 ---
 
