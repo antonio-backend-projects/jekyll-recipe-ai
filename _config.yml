@@ -3,7 +3,7 @@ description: Ricette generate con AI e pubblicate via Jekyll
 lang: it
 
 theme: minima
-baseurl: ""
+baseurl: "/jekyll-recipe-ai"
 url: "https://antonio-backend-projects.github.io/jekyll-recipe-ai"
 
 future: false
