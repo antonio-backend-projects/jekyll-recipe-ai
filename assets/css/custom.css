@@ -111,6 +111,39 @@ h2 { border-bottom: 2px solid var(--accent); padding-bottom: .3em; }
   letter-spacing: .5px;
 }
 
+/* TITOLONE INDEX -------------------------------------------- */
+.page-title {
+  font-size: clamp(3rem, 8vw, 4.5rem);   /* ⬆️ più grande */
+  text-align: center;
+  margin: 3rem 0 2rem;
+  color: var(--accent-dark);
+}
+
+/* MINI JUMBOTRON LISTA POST ---------------------------------- */
+.hero-teaser {
+  background: #fff6d6;
+  border: 1px solid #ffe8a8;
+  border-radius: var(--radius);
+  padding: 1.5rem 1.2rem;
+  margin: 1.5rem 0;
+  text-align: left;
+}
+.hero-teaser h2 {
+  font-size: 1.5rem;          /* leggermente più grande */
+  margin: .2rem 0 .6rem;
+}
+.hero-teaser a {
+  color: var(--accent-dark);  /* stesso colore del jumbotron principale */
+  text-decoration: none;
+}
+.hero-teaser a:hover {
+  text-decoration: underline; /* feedback al passaggio */
+}
+.hero-teaser p {
+  margin: .4rem 0 0;
+  color: var(--text);
+}
+
 
 /* NAV LINKS (mini-hero) ------------------------------------- */
 .nav a {
