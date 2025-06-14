@@ -1,6 +1,6 @@
 ---
 title: "Risotto ai Funghi Porcini"
-date: 2025-06-14 13:00 +0200
+date: 2025-06-14 12:00 +0200
 layout: post
 ---
 
