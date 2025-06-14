@@ -4,6 +4,37 @@
 
 Ricettario statico basato su **Jekyll** alimentato da un workflow **n8n** che genera, programma e pubblica articoli tramite **OpenAI** a partire da un semplice file CSV.
 
+**Questo progetto nasce per dimostrare le mie competenze tecniche nella progettazione di workflow complessi in n8n**, con particolare attenzione all’integrazione tra automazione, intelligenza artificiale e pubblicazione web.
+
+È un esempio pratico di orchestrazione automatizzata di contenuti generati da modelli linguistici (OpenAI) e distribuiti tramite un sito statico (Jekyll), con controllo completo dell’infrastruttura backend.
+
+Utilizzo n8n per automatizzare l’intero processo editoriale, dal CSV al post pubblicato, sfruttando la mia esperienza in:
+
+- **Programmazione**: JavaScript, Python
+- **AI orchestration**: LangChain, LangGraph
+- **Automazione**: n8n, GitHub API, cron, CSV I/O
+
+Il **frontend è volutamente minimale** (tema Jekyll "minima" custom) perché il mio focus è sul backend, sull’automazione dei flussi e sull’integrazione tra strumenti eterogenei.
+
+---
+
+### 🔧 Cos’è n8n?
+
+**n8n (pronunciato "n-eight-n") è una piattaforma di automazione low-code open source**, simile a Zapier o Make.com, ma molto più flessibile e potente per sviluppatori.  
+Con n8n puoi creare flussi (workflow) che collegano servizi web, API, database, AI e logica custom attraverso un’interfaccia visuale e nodi personalizzabili.
+
+Nel mio caso, ho usato n8n per:
+
+- Avviare un cron job giornaliero
+- Leggere e filtrare un file CSV
+- Generare contenuti con GPT-4o-mini
+- Creare file Markdown validi per Jekyll
+- Committare direttamente nel repository GitHub Pages
+- (Facoltativamente) pubblicare post su X / LinkedIn
+- Gestire lo stato del CSV per evitare duplicazioni
+
+n8n permette anche di usare codice JavaScript o Python in nodi custom, lavorare con filesystem (con Docker), e orchestrare in modo stabile flussi asincroni e condizionali.
+
 > **Autore**
 > [Antonio Trento](https://antoniotrento.net)  ·  [LinkedIn](https://linkedin.com/in/antoniotrento)
 
