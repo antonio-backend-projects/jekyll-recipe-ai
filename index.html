@@ -18,4 +18,14 @@ title: Tutte le ricette
       </article>
     {% endfor %}
   </div>
+  <!-- Navigazione pagine -->
+  <nav class="pagination-nav">
+    {% if paginator.previous_page %}
+      <a class="pagination-link prev" href="{{ paginator.previous_page_path | relative_url }}">← Precedente</a>
+    {% endif %}
+
+    {% if paginator.next_page %}
+      <a class="pagination-link next" href="{{ paginator.next_page_path | relative_url }}">Successivo →</a>
+    {% endif %}
+  </nav>
 </div>
