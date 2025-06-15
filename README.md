@@ -1,7 +1,7 @@
 
 # jekyll-recipe-ai
 
-![n8n → Jekyll workflow](images/n8n-workflow.png)
+![head Jekyll workflow](images/header.png)
 
 Ricettario statico basato su **Jekyll** alimentato da un workflow **n8n** che genera, programma e pubblica articoli tramite **OpenAI** a partire da un semplice file CSV.
 
@@ -40,6 +40,7 @@ n8n permette anche di usare codice JavaScript o Python in nodi custom, lavorare 
 > [Antonio Trento](https://antoniotrento.net)  ·  [LinkedIn](https://linkedin.com/in/antoniotrento)
 
 ---
+![n8n → Jekyll workflow](images/n8n-workflow.png)
 
 ## 🗂️ Cosa troverai in questo repository
 
