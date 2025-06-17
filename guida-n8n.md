@@ -1,3 +1,10 @@
+## Accesso in locale
+http://192.168.1.23:5678
+http://151.30.157.26:5678
+
+# installazione n8n su rasberry
+ssh antonio@151.30.157.26
+
 # 🛠️ Guida all’installazione di n8n (Docker, persistente, fs-enabled)
 
 Questa guida spiega come installare **n8n** su una macchina Linux (es. Ubuntu) usando Docker, con:
