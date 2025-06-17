@@ -897,3 +897,101 @@ crontab -e
 * I backup saranno archivi compressi con timestamp, facili da spostare o ripristinare.
 
 Se vuoi ti faccio anche lo script di restore!
+
+
+Perfetto che tu l’abbia notato: il problema **dipende dal fatto che Safari su iPhone forza HTTPS solo in certi casi** e, se trova un redirect mal configurato o un certificato non valido, può cadere nella versione `HTTP` o mostrare **"400 Bad Request"**.
+
+Vediamo **esattamente cosa succede e come risolverlo passo passo.**
+
+---
+
+## ✅ Diagnosi del problema
+
+Quando visiti:
+
+```
+http://antoniotrento.duckdns.org
+```
+
+Safari **non fa automaticamente l'upgrade a HTTPS** se:
+
+* Il redirect da HTTP a HTTPS non è configurato correttamente,
+* O la porta 80 è aperta ma **non risponde bene**,
+* O il certificato non è pienamente valido per Safari (es: problemi di chain/intermediate CA),
+* O il middleware `redirect-to-https` non è applicato correttamente.
+
+---
+
+## ✅ Soluzione completa
+
+### 1. Assicurati che **Traefik stia redirezionando da HTTP a HTTPS**
+
+Nel tuo `docker-compose.yml`, nel blocco `labels` di `n8n`, dovresti avere **esattamente così**:
+
+```yaml
+labels:
+  - "traefik.enable=true"
+  - "traefik.http.routers.n8n.rule=Host(`antoniotrento.duckdns.org`)"
+  - "traefik.http.routers.n8n.entrypoints=websecure"
+  - "traefik.http.routers.n8n.tls.certresolver=duckdns"
+
+  # Redirect automatico HTTP → HTTPS
+  - "traefik.http.routers.http-catch.rule=Host(`antoniotrento.duckdns.org`)"
+  - "traefik.http.routers.http-catch.entrypoints=web"
+  - "traefik.http.routers.http-catch.middlewares=redirect-to-https"
+  - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+```
+
+> 🔁 **Nota bene**: serve un **router HTTP separato** (`http-catch`) per ascoltare su porta 80 e fare redirect.
+
+---
+
+### 2. Assicurati che la porta 80 sia aperta nel NAT
+
+Nel tuo router, oltre alla porta 443 (HTTPS), devi avere anche **porta 80** inoltrata verso il Raspberry:
+
+| Porta WAN | IP LAN (Raspberry) | Porta LAN | Protocollo |
+| --------- | ------------------ | --------- | ---------- |
+| 80        | 192.168.1.23       | 80        | TCP        |
+
+---
+
+### 3. Riavvia tutto dopo le modifiche
+
+```bash
+docker compose down
+docker compose up -d
+```
+
+Poi prova da iPhone con:
+
+```
+https://antoniotrento.duckdns.org
+```
+
+---
+
+## 🧪 Test finale
+
+* Da **Safari iPhone**, apri una **scheda in incognito** e prova direttamente:
+
+  ```
+  https://antoniotrento.duckdns.org
+  ```
+
+* Se funziona, sei a posto.
+
+* Se dà ancora errore, ti faccio controllare anche i certificati.
+
+---
+
+## 🛑 Bonus: previeni questo tipo di errore
+
+Se vuoi forzare **HTTPS ovunque**, puoi anche aggiungere questo header HSTS in Traefik:
+
+```yaml
+- "traefik.http.middlewares.hsts.headers.stsSeconds=31536000"
+- "traefik.http.middlewares.hsts.headers.stsIncludeSubdomains=true"
+- "traefik.http.middlewares.hsts.headers.forceSTSHeader=true"
+- "traefik.http.routers.n8n.middlewares=hsts"
+```
