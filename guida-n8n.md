@@ -843,29 +843,103 @@ Certo! Ecco uno **script bash semplice** per fare backup periodici dei dati pers
 ```bash
 #!/bin/bash
 
-# Configurazione backup
+# Configurazione
 BACKUP_DIR="/home/antonio/Documents/n8n/backups"
-DATA_DIR="/home/antonio/Documents/n8n/data"
 TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
 BACKUP_NAME="n8n_backup_${TIMESTAMP}.tar.gz"
+TEMP_DIR="/tmp/n8n_backup_tmp"
+CONTAINER_NAME="n8n"  # cambia se usi un nome diverso
+VOLUME_NAME="n8n_n8n_data"
 
-# Crea cartella backup se non esiste
+# Cleanup e preparazione
+rm -rf "$TEMP_DIR"
+mkdir -p "$TEMP_DIR/json" "$TEMP_DIR/volume"
+
+echo "➡️ Backup di n8n in corso..."
+
+# 1. Backup del volume Docker
+docker run --rm -v ${VOLUME_NAME}:/volume -v "$TEMP_DIR/volume":/backup busybox \
+    sh -c "cd /volume && tar czf /backup/n8n_data.tar.gz ."
+
+# 2. Esporta workflow e credenziali (richiede container attivo e CLI installata)
+echo "➡️ Esportazione workflow e credenziali da container Docker..."
+docker exec "$CONTAINER_NAME" n8n export:workflow --all --output=/home/node/workflows.json
+docker exec "$CONTAINER_NAME" n8n export:credentials --all --output=/home/node/credentials.json
+docker cp "$CONTAINER_NAME":/home/node/workflows.json "$TEMP_DIR/json/workflows.json"
+docker cp "$CONTAINER_NAME":/home/node/credentials.json "$TEMP_DIR/json/credentials.json"
+
+# 3. Crea archivio completo
 mkdir -p "$BACKUP_DIR"
+tar -czf "$BACKUP_DIR/$BACKUP_NAME" -C "$TEMP_DIR" .
 
-echo "Backup di n8n in corso..."
+# Cleanup
+rm -rf "$TEMP_DIR"
 
-# Esporta il volume Docker n8n_data in una cartella temporanea
-TEMP_VOL_DIR="/tmp/n8n_docker_volume_backup"
-mkdir -p "$TEMP_VOL_DIR"
-docker run --rm -v n8n_data:/volume -v "$TEMP_VOL_DIR":/backup busybox sh -c "cd /volume && tar czf /backup/n8n_data.tar.gz ."
+echo "✅ Backup completato in: $BACKUP_DIR/$BACKUP_NAME"
 
-# Crea archivio backup con dati volume + cartella data
-tar czf "$BACKUP_DIR/$BACKUP_NAME" -C "$TEMP_VOL_DIR" n8n_data.tar.gz -C "$DATA_DIR" .
+```
 
-# Pulisci temporanei
-rm -rf "$TEMP_VOL_DIR"
+# restore
 
-echo "Backup completato: $BACKUP_DIR/$BACKUP_NAME"
+``` bash
+#!/bin/bash
+
+# CONFIGURAZIONE
+BACKUP_FILE="$1"  # es: /home/antonio/Documents/n8n/backups/n8n_backup_20250619_184416.tar.gz
+VOLUME_NAME="n8n_n8n_data"
+TEMP_DIR="/tmp/n8n_restore_tmp"
+
+# Verifica che il file sia stato passato
+if [ -z "$BACKUP_FILE" ]; then
+  echo "❌ Errore: specifica il file di backup .tar.gz come primo argomento."
+  echo "Esempio: ./restore_n8n.sh /home/antonio/Documents/n8n/backups/n8n_backup_20250619_184416.tar.gz"
+  exit 1
+fi
+
+# Controlla che il file esista
+if [ ! -f "$BACKUP_FILE" ]; then
+  echo "❌ Il file $BACKUP_FILE non esiste."
+  exit 1
+fi
+
+echo "🧩 Avvio del ripristino dal backup: $BACKUP_FILE"
+echo "📦 Volume di destinazione: $VOLUME_NAME"
+
+# Estrai backup in directory temporanea
+rm -rf "$TEMP_DIR"
+mkdir -p "$TEMP_DIR"
+tar -xzf "$BACKUP_FILE" -C "$TEMP_DIR"
+
+# Verifica che ci sia l'archivio del volume dentro
+if [ ! -f "$TEMP_DIR/volume/n8n_data.tar.gz" ]; then
+  echo "❌ Archivio volume mancante: n8n_data.tar.gz non trovato nel backup"
+  exit 1
+fi
+
+# Ripristina i dati nel volume Docker (sovrascrive tutto)
+echo "📁 Ripristino dei dati nel volume Docker..."
+docker run --rm -v "$VOLUME_NAME":/volume -v "$TEMP_DIR/volume":/backup busybox \
+  sh -c "rm -rf /volume/* && tar -xzf /backup/n8n_data.tar.gz -C /volume"
+
+echo "✅ Volume ripristinato con successo."
+
+# Facoltativo: reimporta i workflow/credenziali JSON se presenti
+if [ -f "$TEMP_DIR/json/workflows.json" ]; then
+  echo "📄 Reimportazione workflow..."
+  docker exec n8n n8n import:workflow --input=/home/node/workflows.json
+  docker cp "$TEMP_DIR/json/workflows.json" n8n:/home/node/
+fi
+
+if [ -f "$TEMP_DIR/json/credentials.json" ]; then
+  echo "🔐 Reimportazione credenziali..."
+  docker exec n8n n8n import:credentials --input=/home/node/credentials.json
+  docker cp "$TEMP_DIR/json/credentials.json" n8n:/home/node/
+fi
+
+# Cleanup
+rm -rf "$TEMP_DIR"
+
+echo "🎉 Ripristino completato con successo!"
 ```
 
 ---
@@ -995,3 +1069,227 @@ Se vuoi forzare **HTTPS ovunque**, puoi anche aggiungere questo header HSTS in T
 - "traefik.http.middlewares.hsts.headers.forceSTSHeader=true"
 - "traefik.http.routers.n8n.middlewares=hsts"
 ```
+
+
+
+# 🛠️ Guida all’installazione di n8n (Docker, persistente, fs-enabled)
+
+Questa guida spiega come installare **n8n** su una macchina Linux (es. Ubuntu) usando Docker, con:
+
+* **Persistenza dei dati**
+* **Accesso al filesystem host** (`/data`)
+* **Esecuzione di script `fs` (Node.js built-in)\`**
+* **Autostart all’avvio**
+* **Tunneling webhook diretto o dominio HTTPS (es. DuckDNS + Traefik)**
+
+---
+
+### 🔧 Requisiti
+
+* Docker installato e funzionante (`docker --version`)
+* Una cartella host dove leggere/scrivere i file (es. `~/n8n/jekyll`)
+* Un IP pubblico accessibile o un dominio HTTPS (es. `antoniotrento.duckdns.org`)
+
+---
+
+### 📁 1. Prepara la cartella dati
+
+```bash
+mkdir -p ~/n8n/jekyll
+```
+
+Questa cartella verrà montata all’interno del container come `/data`, ed è qui che il workflow leggerà/scriverà i file CSV, Markdown ecc.
+
+---
+
+### 🚀 2. Avvia il container n8n
+
+> ⚠️ Configura il dominio se usi Traefik + DuckDNS: assicurati di usare `WEBHOOK_URL` e non `WEBHOOK_TUNNEL_URL`.
+
+```bash
+docker stop n8n && docker rm n8n   # ferma container esistente
+
+docker run -d --name n8n \
+  --restart unless-stopped \
+  -p 5678:5678 \
+  -v n8n_data:/home/node/.n8n \
+  -v /home/ubuntu/n8n/jekyll:/data \
+  -e N8N_SECURE_COOKIE=false \
+  -e WEBHOOK_URL=https://antoniotrento.duckdns.org \
+  -e N8N_FILESYSTEM_ALLOW_LIST="/data" \
+  -e NODE_FUNCTION_ALLOW_BUILTIN=fs \
+  docker.n8n.io/n8nio/n8n
+```
+
+📌 **Modifica se necessario solo**:
+
+* `-v /home/ubuntu/n8n/jekyll:/data` → sostituisci con il tuo path locale
+* `WEBHOOK_URL` → il tuo dominio DuckDNS configurato con Traefik
+
+---
+
+### 🌐 3. Accedi all’interfaccia n8n
+
+Apri il browser su:
+
+```
+https://antoniotrento.duckdns.org
+```
+
+Esegui la configurazione iniziale. Dopo il primo avvio, i dati saranno salvati in volume (`n8n_data`) e la configurazione sarà persistente.
+
+---
+
+### 📂 4. Verifica montaggio `/data`
+
+Per assicurarti che `/data` sia montato correttamente nel container:
+
+```bash
+docker exec -it n8n ls /data
+```
+
+Dovresti vedere i file presenti nella cartella host (es. `posts.csv`).
+
+---
+
+### ✅ A questo punto sei pronto per:
+
+* Importare o costruire workflow
+* Usare nodi `Read Binary File`, `Write Binary File`, ecc.
+* Eseguire codice JS che legge da `/data` via `fs.readFileSync`
+* Automatizzare task quotidiani
+
+---
+
+### 🧐 Suggerimenti avanzati
+
+* Se usi `n8n` dietro Traefik/HTTPS con DuckDNS, imposta `WEBHOOK_URL=https://il-tuo-dominio.duckdns.org`
+* Per **backup**: esegui `docker volume inspect n8n_data` e salva quel path
+* Per deploy cloud: puoi usare lo stesso comando anche su **Render**, **DigitalOcean**, **Scaleway**, ecc.
+
+---
+
+
+
+
+
+Capito Antonio — ti chiedo scusa per il disagio e ora ti aiuto a **ripristinare subito il certificato HTTPS funzionante**.
+
+---
+
+### 🔥 **Situazione attuale** (riassunto tecnico):
+
+1. **Hai cancellato `acme.json`** per forzare la rigenerazione del certificato.
+2. **Traefik ha provato** a rigenerare, ma **DuckDNS ha risposto con errore 503**, bloccando la creazione.
+3. Risultato:
+
+   * Il certificato non c'è più.
+   * Il sito funziona **solo via HTTP**, oppure non è risolvibile da certi DNS.
+   * Telegram (e browser) rifiutano le connessioni HTTPS.
+
+---
+
+## ✅ Obiettivo urgente
+
+> **Riportare HTTPS funzionante su `antoniotrento.duckdns.org`**
+
+---
+
+## 🔧 Soluzione immediata e sicura
+
+### 🔹 1. Verifica che DuckDNS ora funzioni
+
+Esegui da terminale Raspberry:
+
+```bash
+curl "https://www.duckdns.org/update?domains=antoniotrento&token=d129aa4f-bd67-488e-978c-bfaec76521c6&ip="
+```
+
+Se ti restituisce:
+
+```
+OK
+```
+
+allora **DuckDNS è tornato operativo** → possiamo procedere.
+
+---
+
+### 🔹 2. Forza la rigenerazione del certificato con Traefik
+
+Assicurati che `acme.json` sia **vuoto e con i permessi corretti**:
+
+```bash
+cd /home/antonio/Documents/n8n
+rm -f ./letsencrypt/acme.json
+touch ./letsencrypt/acme.json
+chmod 600 ./letsencrypt/acme.json
+```
+
+---
+
+### 🔹 3. Riavvia tutto (e aspetta 30-60 secondi)
+
+```bash
+docker compose down
+docker compose up -d
+```
+
+Attendi \~1 minuto.
+
+Poi esegui:
+
+```bash
+docker compose logs -f traefik
+```
+
+> Cerca frasi tipo:
+
+```
+Certificates obtained successfully for domain: antoniotrento.duckdns.org
+```
+
+---
+
+### 🔹 4. Verifica dal browser o con curl
+
+```bash
+curl -Iv https://antoniotrento.duckdns.org
+```
+
+✅ Quando leggi `SSL certificate verify OK` → HTTPS è attivo.
+
+---
+
+## 🔁 Se DuckDNS è ancora giù?
+
+Hai 2 alternative:
+
+### ➤ A) **Usare temporaneamente HTTP**
+
+* Puoi accedere a N8N da `http://antoniotrento.duckdns.org`
+* Ma Telegram continuerà a fallire (richiede HTTPS)
+
+### ➤ B) **Usare Ngrok temporaneamente (funziona SEMPRE)**
+
+Avvia in alternativa:
+
+```bash
+ngrok http 5678
+```
+
+Poi prendi l'URL `https://xxxx.ngrok.io`, e imposta temporaneamente:
+
+```bash
+WEBHOOK_URL=https://xxxx.ngrok.io
+```
+
+---
+
+## 🔚 Conclusione
+
+Dimmi **se DuckDNS ora risponde `OK`**, così ti guido in tempo reale a recuperare il certificato.
+
+Oppure, se vuoi, passiamo a una **soluzione più stabile** con Cloudflare (gratuito) e un dominio personalizzato. Ma prima sistemiamo questo.
+
+Vuoi procedere con la rigenerazione ora?
