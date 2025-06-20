@@ -1488,3 +1488,71 @@ Se vuoi, posso fornirti **un esempio di flusso n8n completo** che:
 
 Vuoi che te lo costruisca?
 
+
+
+
+
+
+
+
+
+
+
+
+
+# importante configurazione nodo http request
+
+Perfetto, ti confermo i dettagli precisi per il nodo HTTP Request in n8n:
+
+---
+
+### Impostazioni nodo HTTP Request per generare immagine OpenAI
+
+* **Method:** `POST`
+
+* **URL:**
+  `https://api.openai.com/v1/images/generations`
+
+* **Authentication:**
+  (opzionale se usi header manuali)
+  Metti le credenziali OpenAI oppure inserisci direttamente il Bearer token nell’header.
+
+* **Headers:**
+
+  * `Content-Type`: `application/json`
+  * `Authorization`: `Bearer {{ $credentials.openaiApi.apiKey }}`
+
+* **Body Content Type:** `Raw`
+
+* **Content Type:** `JSON`  (importante, così n8n sa che inviare come JSON)
+
+* **Body:**
+
+```json
+{
+  "model": "gpt-image-1",
+  "prompt": "Un gatto tigrato grigio che abbraccia una lontra con una sciarpa arancione",
+  "n": 1,
+  "size": "1024x1536",
+  "output_format": "jpeg",
+  "quality": "high",
+  "background": "opaque"
+}
+```
+
+---
+
+### Riassunto rapido
+
+* Usa **Raw** (non Body Parameters)
+* Imposta **Content Type** a **application/json**
+* Inserisci tutto il JSON nel campo **Body**
+* Header deve includere `Authorization` e `Content-Type`
+
+---
+
+Se fai così la chiamata funziona e `prompt` viene riconosciuto correttamente!
+
+Se vuoi ti posso aiutare a configurare passo passo.
+
+
