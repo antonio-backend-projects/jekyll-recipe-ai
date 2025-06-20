@@ -1405,3 +1405,86 @@ return [
 
 Se vuoi ti posso aiutare a preparare Dockerfile personalizzato e codice completo per la compressione in n8n!
 
+
+
+Ottima domanda: vediamo **perché nel nodo `OpenAI Image` di n8n non puoi scegliere direttamente il formato `.jpg` (JPEG)** e cosa puoi fare al riguardo.
+
+---
+
+## 🧩 1. **Limiti del nodo "OpenAI Image" in n8n**
+
+Nel nodo `OpenAI Image` (o `OpenAI Tools` → Image generation) **n8n usa l'API di OpenAI in modalità semplificata**, e attualmente:
+
+* **Non espone tutte le opzioni avanzate** come `format`, `compression`, o `background`.
+* Genera immagini nel **formato predefinito**, che è solitamente **PNG** (supporta trasparenza, qualità alta).
+
+Quindi **non puoi selezionare direttamente `jpeg` o `webp`**, a meno che:
+
+* Tu **non usi direttamente una chiamata HTTP personalizzata**, oppure
+* **Post-processi l'immagine** in n8n (es. converti il PNG in JPG con un nodo di manipolazione immagini).
+
+---
+
+## 🔄 2. **Soluzione: conversione del formato in n8n**
+
+Puoi **convertire il PNG in JPG direttamente nel flusso** usando uno di questi approcci:
+
+### 🔧 **Approccio A: Nodo "ImageMagick" (plugin o docker)**
+
+* Se hai installato n8n su un tuo server con Docker, puoi usare uno script con `ImageMagick` per convertire il formato.
+* Oppure usare un nodo `Execute Command` (ma funziona solo in ambiente dove hai i permessi, tipo Docker o VPS).
+
+### 🧪 **Approccio B: Usa JavaScript con il nodo "Function"**
+
+Puoi usare una libreria come `sharp` o `jimp` **se stai usando n8n self-hosted** con `custom code nodes`:
+
+```javascript
+const sharp = require("sharp");
+
+const imageBuffer = Buffer.from(items[0].binary.data.data, 'base64');
+const jpegBuffer = await sharp(imageBuffer)
+  .jpeg({ quality: 80 })
+  .toBuffer();
+
+return [
+  {
+    binary: {
+      data: {
+        data: jpegBuffer.toString('base64'),
+        mimeType: 'image/jpeg',
+        fileName: 'output.jpg',
+      },
+    },
+  },
+];
+```
+
+⚠️ **Questo richiede l’abilitazione di codice personalizzato (e installazione di `sharp` o `jimp`)**.
+
+---
+
+## ✅ 3. **Alternativa pratica: Usa nodo HTTP invece del nodo OpenAI**
+
+Puoi **saltare il nodo OpenAI Image** e usare il nodo `HTTP Request` per chiamare direttamente l’API `responses.create` di OpenAI, dove puoi passare:
+
+```json
+{
+  "tools": [
+    {
+      "type": "image_generation",
+      "format": "jpeg"
+    }
+  ]
+}
+```
+
+⚠️ Questo richiede di autenticarti con la tua API key, strutturare la richiesta in JSON e gestire la risposta (decodifica base64).
+
+Se vuoi, posso fornirti **un esempio di flusso n8n completo** che:
+
+1. Chiama OpenAI direttamente via HTTP con `format: jpeg`
+2. Decodifica l'immagine base64
+3. Salva l’immagine come JPG o la invia via email / upload
+
+Vuoi che te lo costruisca?
+
