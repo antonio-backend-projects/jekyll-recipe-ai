@@ -1556,3 +1556,102 @@ Se fai così la chiamata funziona e `prompt` viene riconosciuto correttamente!
 Se vuoi ti posso aiutare a configurare passo passo.
 
 
+
+
+
+Perfetto, per un uso molto leggero tipo **1 immagine al giorno gratis** per un blog, alcune opzioni con piano gratuito che puoi sfruttare senza spendere:
+
+---
+
+### Opzioni API gratuite per 1 immagine al giorno
+
+1. **DeepAI Text-to-Image API**
+
+   * Piano gratuito con un numero limitato di richieste giornaliere (tipo 1-5 al giorno ci stai dentro sicuro).
+   * Semplice da usare, basta registrarsi e prendere la API key.
+   * Link: [https://deepai.org/machine-learning-model/text2img](https://deepai.org/machine-learning-model/text2img)
+
+2. **Hugging Face - Inference API (Stable Diffusion o DALL·E mini)**
+
+   * Il piano gratuito permette chiamate limitate al mese (per 1 immagine al giorno ci stai).
+   * Devi registrarti, prendere un token, poi fai richieste REST.
+   * Link: [https://huggingface.co/inference-api](https://huggingface.co/inference-api)
+
+3. **Replicate (Stable Diffusion)**
+
+   * Offrono un piano gratuito con crediti iniziali, sufficienti per generare 1 immagine al giorno per mesi.
+   * Poi eventualmente paghi se superi i crediti.
+   * Link: [https://replicate.com/](https://replicate.com/)
+
+---
+
+### Consiglio pratico
+
+* Registrati su uno di questi e usa l’API per 1 immagine al giorno: ti basterà mantenere l’uso leggero e rientrare nel free tier.
+* Sono tutte API REST, facili da integrare in un blog o un piccolo script.
+* Se vuoi, ti faccio un esempio di chiamata API Python o JS per DeepAI o Hugging Face.
+
+---
+
+Se vuoi ti posso aiutare a scrivere uno script che ogni giorno genera un’immagine e la salva pronta per il blog, così ti automatizzi tutto.
+Ti interessa?
+
+
+
+Perfetto! Ti guido passo passo a ottenere le credenziali per usare la **DeepAI Text-to-Image API**:
+
+---
+
+### Come ottenere la API key di DeepAI
+
+1. **Vai al sito DeepAI**
+   Apri questo link nel browser:
+   [https://deepai.org/](https://deepai.org/)
+
+2. **Crea un account (gratis)**
+
+   * In alto a destra clicca su **Sign Up**.
+   * Puoi registrarti con email e password oppure usare un account Google/GitHub.
+   * Completa la registrazione e verifica la mail se ti arriva.
+
+3. **Accedi al tuo account**
+   Dopo il login, vai alla tua dashboard personale.
+
+4. **Vai alla pagina API**
+
+   * Nel menu, clicca su **API** oppure vai direttamente a:
+     [https://deepai.org/machine-learning-model/text2img](https://deepai.org/machine-learning-model/text2img)
+
+5. **Ottieni la API key**
+
+   * Nella dashboard o nella pagina del modello, troverai la tua **API key**.
+   * Di solito è una stringa alfanumerica lunga tipo `quickstart-xxxxxx...` (questa è una demo key limitata).
+   * Se vuoi la tua chiave personale, devi cliccare su un bottone tipo **Get API Key** o simile.
+
+6. **Copiala da qualche parte**
+
+   * Questa API key serve per autenticare le chiamate.
+   * **NON condividerla pubblicamente**.
+
+---
+
+### Come testare subito l’API con curl (da terminale)
+
+Ecco un esempio semplice che puoi provare subito nel terminale (sostituisci `YOUR_API_KEY` con la tua chiave):
+
+```bash
+curl -X POST \
+  -H "api-key: YOUR_API_KEY" \
+  -d "text=A beautiful sunset over the mountains" \
+  https://api.deepai.org/api/text2img
+```
+
+Ti risponde un JSON con un link all’immagine generata.
+
+---
+
+### Prossimo passo
+
+Se vuoi ti scrivo uno script in Python o JavaScript per fare questa chiamata, così la integri nel tuo blog o flusso di lavoro.
+
+Fammi sapere!
