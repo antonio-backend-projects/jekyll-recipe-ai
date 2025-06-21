@@ -1655,3 +1655,109 @@ Ti risponde un JSON con un link all’immagine generata.
 Se vuoi ti scrivo uno script in Python o JavaScript per fare questa chiamata, così la integri nel tuo blog o flusso di lavoro.
 
 Fammi sapere!
+
+
+per prendere le chiavi : https://deepai.org/dashboard/profile
+
+
+Perfetto Antonio, ti confermo che **DeepAI offre effettivamente diverse impostazioni personalizzabili** per la generazione immagini. I dettagli completi sono nascosti nella documentazione avanzata, ma li riassumo qui sotto per te, con esempi **concreti e pronti all’uso**.
+
+---
+
+## ✅ Parametri supportati dall’API `text2img`
+
+| **Parametro**             | **Descrizione**                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| `text`                    | Il prompt testuale da trasformare in immagine (obbligatorio)                     |
+| `width`, `height`         | Larghezza e altezza immagine, in pixel. Default: 512x512. Range: **128–1536 px** |
+| `image_generator_version` | `"standard"` (default), `"hd"`, `"genius"`                                       |
+| `genius_preference`       | Solo con `"genius"`: `"anime"`, `"photography"`, `"graphic"`, `"cinematic"`      |
+| `negative_prompt`         | Prompt negativo per dire cosa evitare (es: "blurry, low quality, extra fingers") |
+
+---
+
+## 📐 Dimensioni consigliate
+
+* **Standard image**:
+
+  * 1024x576
+  * 1024x720
+  * 512x512
+  * 768x1024
+  * 576x1024
+
+* **HD image**:
+
+  * 1024x1024
+  * 1152x896
+  * 1216x832
+  * 896x1152
+  * 832x1216
+
+⚠️ Valori **sotto 256 o sopra 700** per una sola dimensione possono dare risultati strani.
+
+---
+
+## ✨ Esempio completo (JSON body)
+
+```json
+{
+  "text": "A futuristic city at sunset, flying cars and neon lights",
+  "width": "1024",
+  "height": "576",
+  "image_generator_version": "hd",
+  "negative_prompt": "blurry, lowres, watermark, extra limbs"
+}
+```
+
+---
+
+## 🧠 Esempio con Genius Mode
+
+```json
+{
+  "text": "A cinematic scene of a medieval castle during a storm",
+  "width": "832",
+  "height": "1216",
+  "image_generator_version": "genius",
+  "genius_preference": "cinematic",
+  "negative_prompt": "text, watermark, ugly, distorted face"
+}
+```
+
+---
+
+## 🐍 Esempio Python completo
+
+```python
+import requests
+
+response = requests.post(
+    "https://api.deepai.org/api/text2img",
+    data={
+        'text': "A majestic white tiger walking through a bamboo forest",
+        'width': '1024',
+        'height': '720',
+        'image_generator_version': 'hd',
+        'negative_prompt': 'blurry, bad proportions, text',
+    },
+    headers={'api-key': 'YOUR_API_KEY'}
+)
+
+print(response.json())
+```
+
+---
+
+## 📦 Riepilogo utilizzo gratuito
+
+* ✅ **È gratis per usi limitati**: \~100–200 immagini al mese (dipende dal modello)
+* 🚫 Nessuna opzione per cambiare **formato file** (ricevi un link a PNG)
+* 💰 Se esaurisci le immagini: \$5 per ogni 500 immagini extra
+* 🧠 Genius Mode ha **limiti più bassi** (solo 60/mese nel piano free)
+
+---
+
+## Vuoi che ti prepari uno script n8n o un piccolo tool CLI che genera l’immagine e la salva nel tuo blog Jekyll?
+
+Fammi sapere, lo faccio subito.
