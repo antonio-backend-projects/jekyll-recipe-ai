@@ -2604,3 +2604,108 @@ Perfetto, questo errore è **normale** al primo utilizzo delle API di Google.
 ---
 
 Fammi sapere quando le hai abilitate: ti do subito un esempio funzionante completo con `Append Row`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sì, **NocoDB è completamente gratuito e open source**, ed è una delle alternative più potenti e libere ad Airtable.
+
+---
+
+### ✅ **NocoDB: Cos'è**
+
+NocoDB trasforma qualsiasi **database SQL** (es. MySQL, PostgreSQL, SQLite, ecc.) in un’interfaccia tipo Airtable (griglia, form, API REST).
+Puoi quindi **auto-ospitarlo** sul tuo Raspberry Pi, server o VPS, e usarlo in piena libertà **senza limiti artificiali**.
+
+---
+
+### 💸 **Quanto costa NocoDB?**
+
+* **Versione open source: GRATIS al 100%**
+
+  * Senza limiti di righe, utenze, workspace o API
+  * Tutto in locale, nessuna connessione a servizi cloud esterni obbligatoria
+
+* **Versione cloud (NocoDB Cloud):**
+
+  * Offerta commerciale con piani a pagamento, ma **non ti serve** se lo usi self-hosted
+
+---
+
+### ⚙️ **Cosa puoi fare con NocoDB:**
+
+* Crea tabelle e relazioni come su Airtable
+* Collega database reali (PostgreSQL, MySQL, MariaDB, SQLite, SQL Server, ecc.)
+* Ha **API REST/GraphQL automatiche**
+* Interfaccia **simile a Airtable**, con form, vista griglia, kanban
+* Puoi usarlo con **n8n** facilmente tramite:
+
+  * HTTP Request
+  * API Key
+  * oppure anche plugin non ufficiali
+
+---
+
+### 🐳 Esempio di deployment con Docker:
+
+Puoi avviarlo in pochi minuti con:
+
+```yaml
+version: '3'
+services:
+  nocodb:
+    image: nocodb/nocodb:latest
+    ports:
+      - "8080:8080"
+    environment:
+      NC_DB: "sqlite"
+    volumes:
+      - ./nocodb-data:/usr/app/data
+```
+
+Poi visiti `http://localhost:8080` o `http://tuo-dominio:8080` e sei dentro.
+
+---
+
+### ✅ In sintesi:
+
+| Funzione                      | Airtable (Free)      | NocoDB (Self-hosted)      |
+| ----------------------------- | -------------------- | ------------------------- |
+| Limite righe per tabella      | 1.000                | Nessuno                   |
+| Accesso API                   | Limitato             | Illimitato (REST+GraphQL) |
+| Hosting                       | Cloud di Airtable    | Sul tuo server            |
+| Prezzo                        | Gratis ma con limiti | Totalmente gratuito       |
+| Interfaccia tipo foglio Excel | ✅                    | ✅                         |
+| Relazioni tra tabelle         | ✅                    | ✅                         |
+
+---
+
+Se vuoi posso aiutarti a:
+
+1. **Installare NocoDB con Docker** sul Raspberry
+2. **Creare un database SQLite o PostgreSQL locale**
+3. **Collegarlo a n8n**
+4. **Configurare API e automazioni**
+
+Vuoi procedere?
