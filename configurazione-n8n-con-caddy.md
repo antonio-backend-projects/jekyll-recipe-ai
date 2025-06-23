@@ -76,6 +76,8 @@ services:
       - NODE_FUNCTION_ALLOW_BUILTIN=fs
       - TZ=Europe/Rome
       - N8N_RUNNERS_ENABLED=true
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
     volumes:
       - n8n_data:/home/node/.n8n
       - /home/antonio/n8n:/data
@@ -103,12 +105,52 @@ volumes:
 
 # Caddyfile (non ha estension)
 
+base
+
 ``` bash
 {
-  email antonio@tuaemail.com
+  email lantoniotrento@gmail.com
 }
 
 n8n.antoniotrento.net {
+  reverse_proxy n8n:5678
+}
+```
+
+
+avanzato
+``` bash
+{
+  # Log di livello info
+  log {
+    output stdout
+    level INFO
+  }
+
+  # Tempo massimo di attesa per ottenere i certificati
+  cert_issuer acme {
+    email lantoniotrento@gmail.com
+  }
+}
+
+n8n.antoniotrento.net {
+  # Forza HTTPS
+  encode gzip
+  tls lantoniotrento@gmail.co
+
+  # Sicurezza aggiuntiva
+  header {
+    Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    X-Frame-Options "DENY"
+    X-Content-Type-Options "nosniff"
+    X-XSS-Protection "1; mode=block"
+    Referrer-Policy "no-referrer"
+    Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+    Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    Access-Control-Allow-Origin *
+    Access-Control-Allow-Methods "GET, POST, OPTIONS"
+  }
+
   reverse_proxy n8n:5678
 }
 ```
