@@ -7,6 +7,8 @@ Ricettario statico basato su **Jekyll** alimentato da un workflow **n8n** che ge
 
 **Questo progetto nasce per dimostrare le mie competenze tecniche nella progettazione di workflow complessi in n8n**, con particolare attenzione all’integrazione tra automazione, intelligenza artificiale e pubblicazione web.
 
+[Visualicca Recipe AI di Antonio](https://antonio-backend-projects.github.io/jekyll-recipe-ai/)
+
 È un esempio pratico di orchestrazione automatizzata di contenuti generati da modelli linguistici (OpenAI) e distribuiti tramite un sito statico (Jekyll), con controllo completo dell’infrastruttura backend.
 
 Utilizzo n8n per automatizzare l’intero processo editoriale, dal CSV al post pubblicato, sfruttando la mia esperienza in:
