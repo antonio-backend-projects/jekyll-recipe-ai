@@ -5,7 +5,7 @@ layout: post
 ---
 
 ## Panna Cotta al Caffè
-
+ 
 La *panna cotta al caffè* è un dolce italiano che racchiude in sé la cremosità della panna e l'intensità del caffè espresso, creando un dessert al caffè irresistibile. Questa prelibatezza ha origini piemontesi e fa parte della tradizione della cucina italiana, dove la panna cotta viene spesso servita con salse di frutta o caramello. La nostra versione al caffè è perfetta per chi ama i sapori forti e avvolgenti di questo ingrediente. Scopriamo come prepararla passo dopo passo!
 
 ### Ingredienti
